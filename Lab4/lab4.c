@@ -12,22 +12,6 @@ GLfloat theta[] = {0.0, 0.0, 0.0};
 
 GLint axis = 1;
 
-int main(int argc, char **argv)
-{
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(500, 500);
-	glutCreateWindow("Rotating Color Cube 4MT19CS073");
-	glutReshapeFunc(myReshape);
-	glutDisplayFunc(display);
-	glutIdleFunc(spinCube);
-	glutMouseFunc(mouse);
-	glEnable(GL_DEPTH_TEST);
-	glutMainLoop();
-	return 0;
-}
-
 void display(void)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -72,7 +56,7 @@ void spinCube()
 	theta[axis] += 0.5;
 	
 	if (theta[axis] > 360.0)
-		theta[axis] = 0.01;
+		theta[axis] = 0.0;
 
 	glutPostRedisplay();
 }
@@ -99,4 +83,22 @@ void myReshape(int w, int h)
 
 	else
 		glOrtho(-2.0*(GLfloat)w/(GLfloat)h, 2.0*(GLfloat)w/(GLfloat)h, -2.0, 2.0, -10.0, 10.0);
+		
+	glMatrixMode(GL_MODELVIEW);
+}
+
+int main(int argc, char **argv)
+{
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(500, 500);
+	glutCreateWindow("Rotating Color Cube 4MT19CS073");
+	glutReshapeFunc(myReshape);
+	glutDisplayFunc(display);
+	glutIdleFunc(spinCube);
+	glutMouseFunc(mouse);
+	glEnable(GL_DEPTH_TEST);
+	glutMainLoop();
+	return 0;
 }

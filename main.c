@@ -1,87 +1,147 @@
+//Experiment :- 5
+//Perspective Viewing of Color Cube
+
 #include<stdio.h>
 #include<GL/glut.h>
 
-void tableLeg(double thick, double len);
-void table(double topWid, double topThick, double legThick, double legLen);
-void displaySolid();
+static GLfloat theta[] = {0.0, 0.0, 0.0};
+static GLint axis = 2;
+static GLdouble viewer[] = {0.0, 0.0, 5.0};
 
-GLfloat mat_ambient[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat mat_diffuse[] = {0.7f, 0.7f, 0.7f, 1.0f};
-GLfloat mat_specular[] = {0.0f, 1.0f, 0.0f, 1.0f};
-GLfloat mat_shininess[] = {50.0f};
-GLfloat lightIntensity[] = {0.7f, 0.7f, 0.7f, 0.0f};
-GLfloat lightPosition[] = {2.0f, 6.0f, 3.0f, 0.0f};
+void polygon(int a, int b, int c, int d);
+void colorCube(void);
+void display(void);
+void keys(unsigned char key, int x, int y);
+void mouse(int btn, int state, int x, int y);
+void myReshape(int w, int h);
+
+GLfloat vertices[8][3] = { 	{-1.0, -1.0, -1.0}, 
+				{1.0, -1.0, -1.0}, 
+				{1.0, 1.0, -1.0}, 
+				{-1.0, 1.0, -1.0}, 
+				{-1.0, -1.0, 1.0}, 
+				{1.0, -1.0, 1.0}, 
+				{1.0, 1.0, 1.0}, 
+				{-1.0, 1.0, 1.0}};
+
+GLfloat color[8][3] = { 	{0, 0, 0}, 
+				{0, 0, 1}, 
+				{0, 1, 0}, 
+				{1, 0, 0}, 
+				{1, 0, 1}, 
+				{1, 1, 0}, 
+				{0, 1, 1}, 
+				{1, 1, 1}};
 
 int main(int argc, char **argv)
 {
-	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowSize(800, 600);
-	glutCreateWindow("Teapot 4MT19CS073");
-	glutDisplayFunc(displaySolid);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	glShadeModel(GL_SMOOTH);
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+	glutInitWindowPosition(100, 100);
+	glutInitWindowSize(800, 800);
+	glutCreateWindow("Color Cube Viwerer 4MT19CS073");
+	glutReshapeFunc(myReshape);
+	glutDisplayFunc(display);
+	
+	glutMouseFunc(mouse);
+	glutKeyboardFunc(keys);
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_NORMALIZE);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glutMainLoop();
 	return 0;
 }
 
-void displaySolid()
+void polygon(int a, int b, int c, int d)
 {
-	
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-	
-	glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightIntensity);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(-1, 1, -1, 1, -1, 10.0);
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-	gluLookAt(2.3, 1.3, 2.0, 0.0, 0.25, 0.0, 0.0, 1.0, 0.0);
+	glBegin(GL_POLYGON);
+	glColor3fv(color[a]);
+	glVertex3fv(vertices[a]);
+	glColor3fv(color[b]);
+	glVertex3fv(vertices[b]);
+	glColor3fv(color[c]);
+	glVertex3fv(vertices[c]);
+	glColor3fv(color[d]);
+	glVertex3fv(vertices[d]);
+	glEnd();
+}
+
+void colorCube(void)
+{
+	polygon(0, 1, 2, 3);
+	polygon(3, 2, 6, 7);
+	polygon(0, 4, 7, 3);
+	polygon(1, 5, 6, 2);
+	polygon(4, 5, 6, 7);
+	polygon(0, 1, 5, 4);
+}
+
+void display(void)
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glLoadIdentity();
+	
+	gluLookAt(viewer[0], viewer[1], viewer[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+	
 	glPushMatrix();
-	glTranslatef(0.6, 0.38, 0.5);
-	glRotatef(30, 0, 1, 0);
-	glutSolidTeapot(0.08);
-	glPopMatrix();
-	glPushMatrix();
-	glTranslatef(0.4, 0, 0.4);
-	table(0.6, 0.02, 0.02, 0.3);
+	glRotatef(theta[0], 1.0, 0.0, 0.0);
+	glRotatef(theta[1], 0.0, 1.0, 0.0);
+	glRotatef(theta[2], 0.0, 0.0, 1.0);
+	colorCube();
 	glPopMatrix();
 	glFlush();
+	glutSwapBuffers();
 }
 
-void tableLeg(double thick, double len)
+void mouse(int btn, int state, int x, int y)
 {
-	glPushMatrix();
-	glScalef(thick, len, thick);
-	glutSolidCube(1.0);
-	glPopMatrix();
+	if(btn == GLUT_LEFT_BUTTON && state == GLUT_UP)
+		axis = 0;
+	
+	if(btn ==  GLUT_MIDDLE_BUTTON && state == GLUT_UP)
+		axis = 1;
+
+	if(btn == GLUT_RIGHT_BUTTON && state == GLUT_UP)
+		axis  = 2;
+
+	theta[axis] += 3.0;
+	
+	if(theta[axis] > 360.0)
+		theta[axis] -= 360.0;
+	glutPostRedisplay();
 }
 
-void table(double topWid, double topThick, double legThick, double legLen)
+void keys(unsigned char key, int x, int y)
 {
-	glPushMatrix();
-	glTranslatef(0, legLen, 0);
-	glScalef(topWid, topThick, topWid);
-	glutSolidCube(1.0);
-	glPopMatrix();
-	glTranslatef(0.28, 0.15, 0.28);
-	tableLeg(legThick, legLen);
-	glTranslatef(0.0, 0.0, -2*0.28);
-	tableLeg(legThick, legLen);
-	glTranslatef(-2*0.28, 0.0, 0.0);
-	tableLeg(legThick, legLen);
-	glTranslatef(0.0, 0.0, 2*0.28);
-	tableLeg(legThick, legLen);
-	glPopMatrix();
+	if(key == 'x')
+		viewer[0] -= 1.0;
+
+	if(key == 'X')
+		viewer[0] += 1.0;
+
+	if(key == 'y')
+		viewer[1] -= 1.0;
+	
+	if(key == 'Y')
+		viewer[1] += 1.0;
+
+	if(key == 'z')
+		viewer[2] -= 1.0;
+
+	if(key == 'Z')
+		viewer[2] += 1.0;
+
+	glutPostRedisplay();
 }
 
+void myReshape(int w, int h)
+{
+	glViewport(0, 0, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	if(w <= h)
+		glFrustum(-2.0, 2.0, -2.0*h/(GLfloat)w, 2.0*h/(GLfloat)w, 2.0, 20.0);
+
+	else
+		glFrustum(-2.0*(GLfloat)w/(GLfloat)h, 2.0*(GLfloat)w/(GLfloat)h, -2.0, 2.0, 2.0, 20.0);
+
+	glMatrixMode(GL_MODELVIEW);
+}

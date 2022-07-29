@@ -102,7 +102,7 @@ void mouse(int btn, int state, int x, int y)
 	if(btn == GLUT_RIGHT_BUTTON && state == GLUT_UP)
 		axis  = 2;
 
-	theta[axis] += 2.0;
+	theta[axis] += 3.0;
 	
 	if(theta[axis] > 360.0)
 		theta[axis] -= 360.0;
