@@ -1,147 +1,116 @@
-//Experiment :- 5
-//Perspective Viewing of Color Cube
+//Experiment :- 1
+//Bresenham's Line Drawing Algorithm
 
 #include<stdio.h>
 #include<GL/glut.h>
 
-static GLfloat theta[] = {0.0, 0.0, 0.0};
-static GLint axis = 2;
-static GLdouble viewer[] = {0.0, 0.0, 5.0};
-
-void polygon(int a, int b, int c, int d);
-void colorCube(void);
-void display(void);
-void keys(unsigned char key, int x, int y);
-void mouse(int btn, int state, int x, int y);
-void myReshape(int w, int h);
-
-GLfloat vertices[8][3] = { 	{-1.0, -1.0, -1.0}, 
-				{1.0, -1.0, -1.0}, 
-				{1.0, 1.0, -1.0}, 
-				{-1.0, 1.0, -1.0}, 
-				{-1.0, -1.0, 1.0}, 
-				{1.0, -1.0, 1.0}, 
-				{1.0, 1.0, 1.0}, 
-				{-1.0, 1.0, 1.0}};
-
-GLfloat color[8][3] = { 	{0, 0, 0}, 
-				{0, 0, 1}, 
-				{0, 1, 0}, 
-				{1, 0, 0}, 
-				{1, 0, 1}, 
-				{1, 1, 0}, 
-				{0, 1, 1}, 
-				{1, 1, 1}};
+void draw_line(int x1, int x2, int y11, int y2);
+void draw_pixel(int x, int y);
+void myDisplay();
+int x1, y11, x2, y2;
 
 int main(int argc, char **argv)
 {
+	printf("Enter two Coordinates of the Line : ");
+	scanf("%d%d%d%d", &x1, &y11, &x2, &y2);
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-	glutInitWindowPosition(100, 100);
+	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 	glutInitWindowSize(800, 800);
-	glutCreateWindow("Color Cube Viwerer 4MT19CS073");
-	glutReshapeFunc(myReshape);
-	glutDisplayFunc(display);
+	glutInitWindowPosition(100, 100);
+	glutCreateWindow("Bresenham's Line Drawing Algorithm 4MT19CS073");
 	
-	glutMouseFunc(mouse);
-	glutKeyboardFunc(keys);
-	glEnable(GL_DEPTH_TEST);
+	glClearColor(1.0, 1.0, 1.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+	gluOrtho2D(0.0, 100.0, 0.0, 100.0);
+
+	glutDisplayFunc(myDisplay);
 	glutMainLoop();
 	return 0;
 }
 
-void polygon(int a, int b, int c, int d)
+void myDisplay()
 {
-	glBegin(GL_POLYGON);
-	glColor3fv(color[a]);
-	glVertex3fv(vertices[a]);
-	glColor3fv(color[b]);
-	glVertex3fv(vertices[b]);
-	glColor3fv(color[c]);
-	glVertex3fv(vertices[c]);
-	glColor3fv(color[d]);
-	glVertex3fv(vertices[d]);
+	draw_line(x1, x2, y11, y2);
+	glFlush();
+}
+
+void draw_pixel(int x, int y)
+{
+	glPointSize(5);
+	glColor3f(0.0, 0.0, 0.0);
+	glBegin(GL_POINTS);
+	glVertex2i(x, y);
 	glEnd();
 }
 
-void colorCube(void)
-{
-	polygon(0, 1, 2, 3);
-	polygon(3, 2, 6, 7);
-	polygon(0, 4, 7, 3);
-	polygon(1, 5, 6, 2);
-	polygon(4, 5, 6, 7);
-	polygon(0, 1, 5, 4);
-}
+void draw_line(int x1, int x2, int y11, int y2)
+{	
+	int x, y, dx, dy, e, i;
+	int incx, incy, inc1, inc2;
+	incx=1;
+	incy=1;
 
-void display(void)
-{
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+	dx = x2-x1;
+	dy = y2-y11;
+
+	if(dx<0)
+		dx = -dx;
+
+	if(dy<0)
+		dy = -dy;
+
+	if(x2<x1)
+		incx = -1;
+
+	if(y2<y11)
+		incy = -1;
+
+	x = x1;
+	y = y11;
+
+	if(dx > dy)
+	{
+		draw_pixel(x, y);
+		e = (2*dy) - dx;
+		inc1 = 2 * (dy-dx);
+		inc2 = 2 * dy;
+		
+		for(i=0; i<dx; i++)
+		{
+			if(e >= 0)
+			{
+				y += incy;
+				e += inc1;
+			}
+
+			else
+				e += inc2;
+			
+			x += incx;
+			draw_pixel(x, y);
+		}
+	}
 	
-	gluLookAt(viewer[0], viewer[1], viewer[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
-	
-	glPushMatrix();
-	glRotatef(theta[0], 1.0, 0.0, 0.0);
-	glRotatef(theta[1], 0.0, 1.0, 0.0);
-	glRotatef(theta[2], 0.0, 0.0, 1.0);
-	colorCube();
-	glPopMatrix();
-	glFlush();
-	glutSwapBuffers();
-}
-
-void mouse(int btn, int state, int x, int y)
-{
-	if(btn == GLUT_LEFT_BUTTON && state == GLUT_UP)
-		axis = 0;
-	
-	if(btn ==  GLUT_MIDDLE_BUTTON && state == GLUT_UP)
-		axis = 1;
-
-	if(btn == GLUT_RIGHT_BUTTON && state == GLUT_UP)
-		axis  = 2;
-
-	theta[axis] += 3.0;
-	
-	if(theta[axis] > 360.0)
-		theta[axis] -= 360.0;
-	glutPostRedisplay();
-}
-
-void keys(unsigned char key, int x, int y)
-{
-	if(key == 'x')
-		viewer[0] -= 1.0;
-
-	if(key == 'X')
-		viewer[0] += 1.0;
-
-	if(key == 'y')
-		viewer[1] -= 1.0;
-	
-	if(key == 'Y')
-		viewer[1] += 1.0;
-
-	if(key == 'z')
-		viewer[2] -= 1.0;
-
-	if(key == 'Z')
-		viewer[2] += 1.0;
-
-	glutPostRedisplay();
-}
-
-void myReshape(int w, int h)
-{
-	glViewport(0, 0, w, h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	if(w <= h)
-		glFrustum(-2.0, 2.0, -2.0*h/(GLfloat)w, 2.0*h/(GLfloat)w, 2.0, 20.0);
-
 	else
-		glFrustum(-2.0*(GLfloat)w/(GLfloat)h, 2.0*(GLfloat)w/(GLfloat)h, -2.0, 2.0, 2.0, 20.0);
+	{
+		draw_pixel(x, y);
+		e = (2*dx) - dy;
+		inc1 = 2 * (dx-dy);
+		inc2 = 2 * dx;
 
-	glMatrixMode(GL_MODELVIEW);
+		for(i=0; i<dy; i++)
+		{
+			if(e >= 0)
+			{
+				x += incx;
+				e += inc2;
+			}
+
+			else
+				e += inc1;
+			
+			y += incy;
+			draw_pixel(x, y);
+		}
+	}
 }

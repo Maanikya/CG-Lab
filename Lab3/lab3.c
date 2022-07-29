@@ -30,14 +30,8 @@ int main(int argc, char **argv)
 	glutDisplayFunc(display);
 	glutAttachMenu(GLUT_RIGHT_BUTTON);
 
-	
-
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
 	gluOrtho2D(0.0, 1000.0, 0.0, 1000.0);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glPointSize(4);	
-	glColor3f(0.0, 0.0, 0.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);	
 
 	glutMainLoop();
 	return 0;
@@ -102,6 +96,8 @@ void scanFill(float x1, float y11, float x2, float y2, float x3, float y3, float
 	edgeDetect(x4, y4, x3, y3);
 	edgeDetect(x1, y11, x4, y4);
 
+	glPointSize(4);
+	
 	for(y=400; y<=800; y++) {
 		for(i=le[y]; i<=re[y]; i++) {
 			glColor3f(0.5, 0.0, 1.0);			

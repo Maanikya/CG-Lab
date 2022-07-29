@@ -21,12 +21,17 @@ int main(int argc, char **argv)
 	
 	glClearColor(1.0, 1.0, 1.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0.0, 100.0, 0.0, 100.0);
 
 	glutDisplayFunc(myDisplay);
 	glutMainLoop();
 	return 0;
+}
+
+void myDisplay()
+{
+	draw_line(x1, x2, y11, y2);
+	glFlush();
 }
 
 void draw_pixel(int x, int y)
@@ -36,8 +41,6 @@ void draw_pixel(int x, int y)
 	glBegin(GL_POINTS);
 	glVertex2i(x, y);
 	glEnd();
-	//for(int i=0; i<10000000; i++)
-	//glFlush();
 }
 
 void draw_line(int x1, int x2, int y11, int y2)
@@ -111,10 +114,3 @@ void draw_line(int x1, int x2, int y11, int y2)
 		}
 	}
 }
-
-void myDisplay()
-{
-	draw_line(x1, x2, y11, y2);
-	glFlush();
-}
-				
