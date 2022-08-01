@@ -8,7 +8,7 @@ float xvmin=200, yvmin=200, xvmax=300, yvmax=300;
 float xmin, ymin, xmax, ymax;
 double x, y;
 float x0, y0, x1, y11;
-int RIGHT=2, LEFT=1, TOP=8, BOTTOM=4;
+int TOP=8, BOTTOM=4, RIGHT=2, LEFT=1;
 
 void myinit();
 void display();
@@ -25,7 +25,7 @@ int main(int argc,char **argv)
 	scanf("%f%f%f%f", &x0, &y0, &x1, &y11);
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(600, 600);
 	glutInitWindowPosition(0, 0);
 	glutCreateWindow("Cohen-Sutherland Line-Clipping 4MT19CS073");
 	glutDisplayFunc(display);
@@ -37,8 +37,6 @@ int main(int argc,char **argv)
 void myinit()
 {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
-	glColor3f(1.0, 0.0, 0.0);
-	glPointSize(1.0);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0.0, 500.0, 0.0, 500.0);
@@ -53,6 +51,24 @@ void display()
 	drawrect();
 	CSLCA(x0, y0, x1, y11);
 	glFlush();
+}
+
+void drawline()
+{
+	glBegin(GL_LINES);
+	glVertex2f(x0, y0);
+	glVertex2f(x1, y11);
+	glEnd();
+}
+
+void drawrect()
+{
+	glBegin(GL_LINE_LOOP);
+	glVertex2f(xmin, ymin);
+	glVertex2f(xmax, ymin);
+	glVertex2f(xmax, ymax);
+	glVertex2f(xmin, ymax);
+	glEnd();
 }
 
 void CSLCA(float x0, float y0, float x1, float y11)
@@ -140,25 +156,6 @@ void CSLCA(float x0, float y0, float x1, float y11)
 		glVertex2d(vx1, vy1);
 		glEnd();
 	}
-}
-
-
-void drawline()
-{
-	glBegin(GL_LINES);
-	glVertex2f(x0, y0);
-	glVertex2f(x1, y11);
-	glEnd();
-}
-			
-void drawrect()
-{
-	glBegin(GL_LINE_LOOP);
-	glVertex2f(xmin, ymin);
-	glVertex2f(xmax, ymin);
-	glVertex2f(xmax, ymax);
-	glVertex2f(xmin, ymax);
-	glEnd();
 }
 			
 int computeoutcode(float x, float y)
